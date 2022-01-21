@@ -1,4 +1,4 @@
-<img src="https://github.com/sz47/NexMail/blob/main/images/nexmail_main.png" width="250"> 
+<img src="https://github.com/sz47/NexMail/blob/main/images/nexmail_main.png" align="center" width="250"> 
 
 -----
 
