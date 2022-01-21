@@ -4,7 +4,7 @@ A simple GUI mail client that encrypts the mail before sending. So even if mail 
 
 One caveat though, you'll need this client to decrypt the mail and the associated key.
 
-## Features
+## Features (Planned)
 
 + Login
 + Send Mail (with and without encyption)
