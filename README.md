@@ -1,4 +1,5 @@
-# NexMail
+![](https://github.com/sz47/NexMail/blob/main/images/nexmail_main.png)
+
 
 A simple GUI mail client that encrypts the mail before sending. So even if mail providers like gmail or outlook wanted to read your mail, they can't :)
 
