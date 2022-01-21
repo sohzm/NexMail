@@ -1,4 +1,4 @@
-<img src="https://github.com/sz47/NexMail/blob/main/images/nexmail_main.png" width="100"> 
+<img src="https://github.com/sz47/NexMail/blob/main/images/nexmail_main.png" width="250"> 
 
 A simple GUI mail client that encrypts the mail before sending. So even if mail providers like gmail or outlook wanted to read your mail, they can't :)
 
