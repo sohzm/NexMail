@@ -10,13 +10,13 @@ One caveat though, you'll need this client to decrypt the mail and the associate
 
 ## Features (Planned)
 
-+ Login
-+ Send Mail (with and without encyption)
-+ Read Mail from Inbox
-+ Mail search
-+ Local mail storage (with encryption)
-+ Dark Mode for reading mails
-+ Cross Platform
+[x] Login
+[ ] Send Mail (with and without encyption)
+[ ] Read Mail from Inbox
+[ ] Mail search
+[ ] Local mail storage (with encryption)
+[ ] Dark Mode for reading mails
+[ ] Cross Platform
 
 ## Dependencies
 
