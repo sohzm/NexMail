@@ -74,10 +74,10 @@ class Login(QDialog):
         password = self.password_edit.text()
 
         try:
-            #temp_regex = re.search("@.*$", username)
-            #service = temp_regex.string[temp_regex.start()+1: temp_regex.end()]
-            #imap = imaplib.IMAP4_SSL(imap_list[service][0])
-            #imap.login(username, password)
+            temp_regex = re.search("@.*$", username)
+            service = temp_regex.string[temp_regex.start()+1: temp_regex.end()]
+            imap = imaplib.IMAP4_SSL(imap_list[service][0])
+            imap.login(username, password)
             self.error_message.setText("Login Successful, Loading...")
             print("AUTH Success: ", username)
             self.open_that_window()

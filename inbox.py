@@ -56,7 +56,7 @@ class Inbox(QMainWindow):
         label_trash.setFont(font)      
         label_inbox.setFont(font)      
 
-        lhdd = QLabel("JJJJJJJJJJJJJJJJJJJJJj")
+        lhdd = QLabel("Login Successful")
         lhdd.setFixedHeight(100)
         tool_layout.addWidget(lhdd)
 
