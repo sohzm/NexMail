@@ -18,8 +18,6 @@ One caveat though, you'll need this client to decrypt the mail and the associate
 + Dark Mode for reading mails
 + Cross Platform
 
------
-
 ## Dependencies
 
 + [PySide2](https://pypi.org/project/PySide2/)
