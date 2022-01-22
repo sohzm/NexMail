@@ -24,4 +24,6 @@ One caveat though, you'll need this client to decrypt the mail and the associate
 
 ## Run
 
-```py main.py```
+```
+py main.py
+```
