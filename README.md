@@ -25,5 +25,7 @@ One caveat though, you'll need this client to decrypt the mail and the associate
 ## Run
 
 ```
+git clone https://github.com/sz47/NexMail.git
+cd NexMail
 py main.py
 ```
