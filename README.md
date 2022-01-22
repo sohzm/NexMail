@@ -17,3 +17,13 @@ One caveat though, you'll need this client to decrypt the mail and the associate
 + Local mail storage (with encryption)
 + Dark Mode for reading mails
 + Cross Platform
+
+-----
+
+## Dependencies
+
++ [PySide2](https://pypi.org/project/PySide2/)
+
+## Run
+
+```py main.py```
