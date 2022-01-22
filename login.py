@@ -1,7 +1,7 @@
 import re
 import imaplib
 from PySide2.QtWidgets import QHBoxLayout, QVBoxLayout, QLabel, QLineEdit, QPushButton, QDialog
-from PySide2.QtGui import QPixmap, QImage
+from PySide2.QtGui import QPixmap, QImage, QFont
 
 from inbox import Inbox
 
@@ -34,10 +34,11 @@ class Login(QDialog):
 
         self.error_message = QLabel();
 
-        font = self.username_edit.font()
-        font.setPointSize(12) 
-        self.username_edit.setFont(font)      
-        self.password_edit.setFont(font)      
+
+        fontsize = 12
+        font = "arial"
+        self.username_edit.setFont(QFont(font, fontsize))
+        self.password_edit.setFont(QFont(font, fontsize))     
 
         self.username_edit.setPlaceholderText("Email")
         self.username_edit.setStyleSheet("padding: 3px 3px 3px 10px solid black;")
@@ -74,10 +75,10 @@ class Login(QDialog):
         password = self.password_edit.text()
 
         try:
-            temp_regex = re.search("@.*$", username)
-            service = temp_regex.string[temp_regex.start()+1: temp_regex.end()]
-            imap = imaplib.IMAP4_SSL(imap_list[service][0])
-            imap.login(username, password)
+            #temp_regex = re.search("@.*$", username)
+            #service = temp_regex.string[temp_regex.start()+1: temp_regex.end()]
+            #imap = imaplib.IMAP4_SSL(imap_list[service][0])
+            #imap.login(username, password)
             self.error_message.setText("Login Successful, Loading...")
             print("AUTH Success: ", username)
             self.open_that_window()

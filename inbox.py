@@ -1,8 +1,7 @@
-from PySide2.QtWidgets import QMainWindow, QHBoxLayout, QVBoxLayout, QLabel, QWidget, QLineEdit
-from PySide2.QtGui import QPixmap, QImage, QPalette, QColor, Qt
+from PySide2.QtWidgets import QMainWindow, QHBoxLayout, QVBoxLayout, QLabel, QWidget, QLineEdit, QScrollArea
+from PySide2.QtGui import QPixmap, QImage, QPalette, QColor, Qt, QFont, QFontDatabase
 
 class Color(QWidget):
-
     def __init__(self, color):
         super(Color, self).__init__()
         self.setAutoFillBackground(True)
@@ -12,65 +11,132 @@ class Color(QWidget):
         self.setPalette(palette)
 
 class Inbox(QMainWindow):
+    print("ENtered Inbox")
 
     def __init__(self):
         super(Inbox, self).__init__()
 
         self.setWindowTitle("Inbox")
 
-        main_window = QHBoxLayout()
-        menu_layout = QVBoxLayout()
-        mail_layout = QVBoxLayout()
-        tool_layout = QHBoxLayout()
+        # Layouts
 
-        icon = QLabel()
-        icon_img = QImage('images/nexmail_text.png')
-        #icon.setStyleSheet("margin :55px;")
-        icon.setPixmap(QPixmap(icon_img.scaledToWidth(250)))
-        menu_layout.addWidget(icon)
-        icon.setContentsMargins(40, 10, 10, 10)
-        icon.setFixedHeight(140)
+        main_window = QVBoxLayout()
 
-        main_menu = QWidget()
+        main_bar = QHBoxLayout()
+        icon_box = QHBoxLayout()
+        tool_bar = QVBoxLayout()
+        user_bar = QHBoxLayout()
+        mail_bar = QHBoxLayout()
 
-        search_bar = QLineEdit()
-        font = search_bar.font()
-        font.setPointSize(12) 
-        search_bar.setFont(font)      
-        search_bar.setPlaceholderText("Search Mail")
-        search_bar.setContentsMargins(50, 55, 60, 10)
-        search_bar.setFixedHeight(100)
-        search_bar.setStyleSheet("padding: 0px 0px 0px 10px solid black;")
-        menu_layout.addWidget(search_bar)
-
-        label_inbox = QLabel("Inbox")
-        label_inbox.setStyleSheet("margin: 30px 0px 0px 50px solid black;")
-        menu_layout.addWidget(label_inbox)
-
-        label_trash = QLabel("Trash")
-        label_trash.setStyleSheet("margin: 30px 0px 0px 50px solid black;")
-        menu_layout.addWidget(label_trash)
+        area_box = QHBoxLayout()
+        menu_bar = QVBoxLayout()
+        #mail_box = QWidget()
         
-        font = label_trash.font()
-        font.setPointSize(14) 
-        label_trash.setFont(font)      
-        label_inbox.setFont(font)      
+        tool_bar.addLayout(user_bar)
+        tool_bar.addLayout(mail_bar)
 
-        lhdd = QLabel("Login Successful")
-        lhdd.setFixedHeight(100)
-        tool_layout.addWidget(lhdd)
+        main_bar.addLayout(icon_box)
+        main_bar.addLayout(tool_bar)
 
-        menu_layout.addWidget(main_menu)
+        area_box.addLayout(menu_bar)
+        #area_box.addLayout(mail_box)
 
-        mail_layout.addLayout(tool_layout)
-        mail_layout.addWidget(Color('red'))
-        mail_layout.addWidget(Color('purple'))
+        main_window.addLayout(main_bar)
+        main_window.addLayout(area_box, 1)
 
-        menu_layout.setAlignment(Qt.AlignTop)
+        ### ICON BOX
 
-        main_window.addLayout(menu_layout, 2)
-        main_window.addLayout(mail_layout, 5)
+        self.addFont()
+        icon = QLabel("NexMail")
+        icon.setFont(QFont("Iosevka", 32))
+        icon_box.addWidget(icon)
+
+        ### USER BAR 
+
+        fontsize = 12
+        font = "arial"
+
+        self.search = QLineEdit()
+        self.search.setPlaceholderText("Search Mail")
+        self.search.setStyleSheet("padding: 3px 3px 3px 10px solid black;")
+        self.search.setFont(QFont(font, fontsize))
+        self.search.setFixedWidth(480)
+        user_bar.addWidget(self.search)
+
+        self.space1 = QLabel()
+        user_bar.addWidget(self.space1, 1)
+
+        self.help = QLabel("Help")
+        self.help.setFont(QFont(font, fontsize))
+        user_bar.addWidget(self.help)
+
+        self.settings = QLabel("Settings")
+        self.settings.setFont(QFont(font, fontsize))
+        user_bar.addWidget(self.settings)
+
+        self.account = QLabel("Account")
+        self.account.setFont(QFont(font, fontsize))
+        user_bar.addWidget(self.account)
+        
+
+        ### MAIL BAR
+
+        self.reload = QLabel("Reload")
+        self.reload.setFont(QFont(font, fontsize))
+        mail_bar.addWidget(self.reload)
+
+        self.space2 = QLabel()
+        mail_bar.addWidget(self.space2, 1)
+
+        self.status = QLabel("Status")
+        self.status.setFont(QFont(font, fontsize))
+        mail_bar.addWidget(self.status)
+
+
+        ### MENU BAR
+
+        fontsize = 16
+
+        self.inbox = QLabel("Inbox")
+        self.inbox.setFont(QFont(font, fontsize))
+        menu_bar.addWidget(self.inbox)
+
+        self.important = QLabel("Important")
+        self.important.setFont(QFont(font, fontsize))
+        menu_bar.addWidget(self.important)
+
+        self.sent = QLabel("Sent")
+        self.sent.setFont(QFont(font, fontsize))
+        menu_bar.addWidget(self.sent)
+
+        self.draft = QLabel("Draft")
+        self.draft.setFont(QFont(font, fontsize))
+        menu_bar.addWidget(self.draft)
+
+        self.chats = QLabel("Chats")
+        self.chats.setFont(QFont(font, fontsize))
+        menu_bar.addWidget(self.chats)
+
+        ### MAIL BOX
 
         widget = QWidget()
-        widget.setLayout(main_window)
-        self.setCentralWidget(widget)
+        layout = QVBoxLayout(widget)
+
+        scroll_area = QScrollArea()
+        for index in range(1000):
+            layout.addWidget(QLabel('Label %02d' % index))
+
+        scroll_area.setWidget(widget)
+        scroll_area.setWidgetResizable(True)
+        area_box.addWidget(scroll_area)
+
+
+        ### FINAL
+
+        final_widget = QWidget() 
+        final_widget.setLayout(main_window)
+        self.setCentralWidget(final_widget)
+
+    def addFont(self):
+        font_db = QFontDatabase()
+        font_id = font_db.addApplicationFont("fonts/iosevka-regular.ttf")
