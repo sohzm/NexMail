@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://github.com/sz47/NexMail/blob/main/images/nexmail_main.png" align="center" width="270"> 
+  <img src="https://github.com/sz47/NexMail/blob/main/images/nexmail_main.png" align="center" width="270" alt="NexMail Logo"> 
 </p>
 
 -----
@@ -17,15 +17,14 @@ One caveat though, you'll need this client to decrypt the mail and the associate
 - [ ] Local mail storage (with encryption)
 - [ ] Dark Mode for reading mails
 - [ ] Cross Platform
+- [ ] Tab Layout for multitasking
 
 ## Dependencies
 
-+ [PySide2](https://pypi.org/project/PySide2/)
++ [PySide6](https://pypi.org/project/PySide6/)
 
 ## Run
 
 ```
-git clone https://github.com/sz47/NexMail.git
-cd NexMail
 py main.py
 ```
