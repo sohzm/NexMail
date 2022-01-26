@@ -9,4 +9,4 @@ window = Login()
 window.show()
 window.setFixedSize(window.size());
 
-app.exec_()
+sys.exit(app.exec())
