@@ -1,21 +1,11 @@
 import re
 import time
 import imaplib
-from PySide6.QtWidgets import (
-        QHBoxLayout, 
-        QVBoxLayout, 
-        QLabel, 
-        QLineEdit, 
-        QPushButton, 
-        QDialog
-    )
-from PySide6.QtGui import (
-        QPixmap, 
-        QImage, 
-        QFont
-    )
 
+from PySide6.QtWidgets import QHBoxLayout, QVBoxLayout, QLabel, QLineEdit, QPushButton, QDialog
+from PySide6.QtGui import QPixmap, QImage, QFont
 from PySide6.QtCore import QObject, QThread, Signal
+
 from inbox import Inbox
 
 imap_list = {
@@ -28,9 +18,8 @@ imap_list = {
 class Login(QDialog):
     def __init__(self):
         super().__init__()
-        self.ret = 8
-        self.load_layout()
 
+        self.load_layout()
 
     def load_layout(self):
         self.setWindowTitle("NexMail Login")
@@ -97,16 +86,17 @@ class Login(QDialog):
 
     def start_new_thread(self):
         self.thread = Worker(self.username, self.password, self.sr)
-        self.thread.task.connect(self.open_that_window)
+        self.thread.login_successful.connect(self.open_that_window)
         self.thread.error.connect(self.return_error)
         self.login.setEnabled(False)
         self.thread.start()
 
     def open_that_window(self, val):
-        print("AUTH::open")
-        inbox = Inbox(self.username, self.password, self.sr)
-        inbox.show()
+        self.thread.exit(0)
+        print("AUTH:::", val)
         self.close()
+        self.inbox = Inbox(val)
+        self.inbox.show()
 
     def return_error(self, val):
         print("AUTH::errr")
@@ -128,7 +118,7 @@ class Login(QDialog):
 class Worker(QThread):
 
     error = Signal(int)
-    task = Signal(int)
+    login_successful = Signal(imaplib.IMAP4_SSL)
 
     def __init__(self, usr, pss, imp) -> None:
         super().__init__()
@@ -140,8 +130,10 @@ class Worker(QThread):
         try:
             imap = imaplib.IMAP4_SSL(self.imp)
             imap.login(self.usr, self.pss)
-            print("AUTH::SUCCESS")
-            self.task.emit(7)
-        except:
-            print("AUTH::ERROR")
+            print("AUTH::SUCCESS:::", imap)
+            self.login_successful.emit(imap)
+            self.exit(0)
+        except Exception as e:
+            print("AUTH::ERROR", e)
             self.error.emit(1)
+            self.exit(0)
