@@ -6,18 +6,33 @@
 
 A simple GUI mail client that encrypts the mail before sending. So even if mail providers like gmail or outlook wanted to read your mail, they can't :)
 
-One caveat though, you'll need this client to decrypt the mail and the associated key.
+One caveat though, you'll need this client to decrypt the mail and the associated key (good news, this application will be cross platform).
 
-## Features (Planned)
+## Features
 
-- [x] Login
-- [ ] Send Mail (with and without encyption)
-- [ ] Read Mail from Inbox
-- [ ] Mail search
-- [ ] Local mail storage (with encryption)
-- [ ] Dark Mode for reading mails
-- [ ] Cross Platform
-- [ ] Tab Layout for multitasking
+```
+[x] Login
+  - [x] Online
+  - [ ] Local login
+
+[o] Read Mail from Inbox
+  - [o] Categories in mail
+  - [ ] Add pages in inbox
+
+[o] Tab Layout for multitasking
+
+[ ] Send Mail
+  - [ ] With encryption
+
+[ ] Local mail storage (with encryption)
+
+[ ] Mail search
+
+[ ] Dark Mode for reading mails
+
+x = done
+o = kinda implemented
+```
 
 ## Dependencies
 

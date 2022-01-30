@@ -2,9 +2,12 @@ import re
 import time
 import imaplib
 
-from PySide6.QtWidgets import QHBoxLayout, QVBoxLayout, QLabel, QLineEdit, QPushButton, QDialog
-from PySide6.QtGui import QPixmap, QImage, QFont
-from PySide6.QtCore import QObject, QThread, Signal
+from PySide6.QtWidgets import (
+    QHBoxLayout, QVBoxLayout, QLabel, 
+    QLineEdit, QPushButton, QDialog
+)
+from PySide6.QtGui     import QPixmap, QImage, QFont
+from PySide6.QtCore    import QThread, Signal
 
 from inbox import Inbox
 
@@ -15,14 +18,15 @@ imap_list = {
     "zoho.com":    ["imap.zoho.com",         993]
 }
 
+
 class Login(QDialog):
+    
     def __init__(self):
         super().__init__()
-
         self.load_layout()
 
     def load_layout(self):
-        self.setWindowTitle("NexMail Login")
+        self.setWindowTitle("NexMail")
 
         h_box = QHBoxLayout()
         v_box = QVBoxLayout()
@@ -85,7 +89,7 @@ class Login(QDialog):
             print("ERROR::", e)
 
     def start_new_thread(self):
-        self.thread = Worker(self.username, self.password, self.sr)
+        self.thread = LoginWorker(self.username, self.password, self.sr)
         self.thread.login_successful.connect(self.open_that_window)
         self.thread.error.connect(self.return_error)
         self.login.setEnabled(False)
@@ -96,6 +100,8 @@ class Login(QDialog):
         print("AUTH:::", val)
         self.close()
         self.inbox = Inbox(val)
+        self.inbox.setFixedSize(1300, 900);
+
         self.inbox.show()
 
     def return_error(self, val):
@@ -115,7 +121,7 @@ class Login(QDialog):
             i += 1
 
 
-class Worker(QThread):
+class LoginWorker(QThread):
 
     error = Signal(int)
     login_successful = Signal(imaplib.IMAP4_SSL)
