@@ -4,7 +4,7 @@
 
 -----
 
-A simple GUI mail client that encrypts the mail before sending. So even if mail providers like gmail or outlook wanted to read your mail, they can't :)
+A QT based email client that encrypts the mail before sending. So even if mail providers like gmail or outlook wanted to read your mail, they can't :)
 
 One caveat though, you'll need this client to decrypt the mail and the associated key (good news, this application will be cross platform).
 
@@ -17,7 +17,7 @@ One caveat though, you'll need this client to decrypt the mail and the associate
 
 [o] Read Mail from Inbox
   - [o] Categories in mail
-  - [ ] Add pages in inbox
+  - [o] Add pages in inbox
 
 [o] Tab Layout for multitasking
 
