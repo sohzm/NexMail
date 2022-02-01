@@ -1,4 +1,5 @@
 import re
+import os
 import time
 import imaplib
 
@@ -51,6 +52,9 @@ class Login(QDialog):
         self.username_edit.setStyleSheet("padding: 3px 3px 3px 10px solid black;")
         self.password_edit.setPlaceholderText("Password")
         self.password_edit.setStyleSheet("padding: 3px 3px 3px 10px solid black;")
+
+        self.username_edit.setText(os.environ["MailID"])
+        self.password_edit.setText(os.environ["PassWD"])
 
         #rt: add view/hide password option
         self.password_edit.setEchoMode(QLineEdit.Password)

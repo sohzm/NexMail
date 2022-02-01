@@ -31,7 +31,7 @@ One caveat though, you'll need this client to decrypt the mail and the associate
 [ ] Dark Mode for reading mails
 
 x = done
-o = kinda implemented
+o = in progress
 ```
 
 ## Dependencies

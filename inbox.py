@@ -1,14 +1,15 @@
 from PySide6.QtWidgets import (
     QMainWindow, QHBoxLayout, QVBoxLayout, 
     QLabel, QWidget, QLineEdit, QScrollArea, 
-    QTabWidget, QPlainTextEdit, QPushButton
+    QTabWidget, QPushButton
 )
 from PySide6.QtGui     import QFont
 from PySide6.QtCore    import Qt
-from PySide6.QtWebEngineWidgets import QWebEngineView
 
-from get_mail import MLoadWorker
+from inbox_tools    import MListTab, MLoadWorker
 
+import email
+import copy
 
 class Inbox(QMainWindow):
 
@@ -114,12 +115,12 @@ class Inbox(QMainWindow):
         self.create = QLabel("New Mail")
         self.create.setFont(QFont(font, fontsize))
         menu_bar.addWidget(self.create)
-        self.create.mousePressEvent = self.mail_editor
+        #self.create.mousePressEvent = self.mail_editor
 
         self.inbox = QLabel("Inbox")
         self.inbox.setFont(QFont(font, fontsize))
         menu_bar.addWidget(self.inbox)
-        self.inbox.setStyleSheet("background-color: yellow;")
+        self.inbox.setStyleSheet("background-color: #888888;")
 
         self.important = QLabel("Important")
         self.important.setFont(QFont(font, fontsize))
@@ -143,8 +144,6 @@ class Inbox(QMainWindow):
         self.tab_layout.setTabsClosable(True)
         self.tab_layout.tabCloseRequested.connect(self.close_curr_tab)
 
-        self.tab1 = QWidget()
-        self.tab_layout.addTab(self.tab1,"Inbox")
 
         widget = QWidget()
         self.layout = QVBoxLayout(widget)
@@ -158,53 +157,82 @@ class Inbox(QMainWindow):
 
         layout1.addWidget(scroll_area)
 
-        self.tab1.setLayout(layout1)
         area_box.addWidget(self.tab_layout)
 
         final_widget = QWidget() 
         final_widget.setLayout(main_window)
         self.setCentralWidget(final_widget)
-        self.mail_array = []
         self.thread_is_running = False
-        self.mail_array = list(range(50))
         self.inbox_page = 0
 
         try:
-            self.mail_ret_thread()
+            self.on_inbox_clicked()
 
         except Exception as e:
             print("ERROR::", e)
 
+    def on_inbox_clicked(self, event = 0):
+        self.temp_crt = MListTab(self.imap_inst, self.tab_layout)
+        self.tab_layout.addTab(self.temp_crt, "Inbox")
+        self.tab_layout.setCurrentIndex(self.tab_layout.count()-1)
+
+        self.imap_inst.select("inbox")
+        _, data = self.imap_inst.search(None, "ALL")
+
+        temp_data = email.message_from_bytes(data[0])
+
+        self.temp_list = str(temp_data).split()
+        self.temp_list.reverse()
+
+        self.inbox_mail = MLoadWorker(
+            self.imap_inst, self.temp_list, 
+            self.inbox_page
+        )
+        self.inbox_mail.iemit_cell.connect(self.temp_crt.create_new_cell)
+        self.inbox_mail.istart.connect(self.started_thread)
+        self.inbox_mail.ifinish.connect(self.thread_completed)
+        self.inbox_mail.start()
+
     def next_page(self, event):
-        if (self.ret_mail.isRunning()):
-            self.ret_mail.break_var = True
+        if (self.inbox_mail.isRunning()):
+            self.inbox_mail.break_var = True
             
-        self.ret_mail.wait()
-        self.ret_mail = None
+        self.inbox_mail.wait()
         self.inbox_page += 1
-        self.status.setText((str((self.inbox_page*50)+1) + "-" + str((self.inbox_page+1)*50)))
-        self.ret_mail = MLoadWorker(self.imap_inst, self.inbox_page)
-        self.ret_mail.ierror.connect(self.return_error)
-        self.ret_mail.ifinish.connect(self.thread_completed)
-        self.ret_mail.istart.connect(self.started_thread)
-        self.ret_mail.iexport_email.connect(self.create_mail)
-        self.ret_mail.start()
+        self.status.setText(
+            str((self.inbox_page*50)+1) 
+            + "-" 
+            + str((self.inbox_page+1)*50)
+        )
+        self.temp_crt.clear_mail_list()
+        self.inbox_mail = MLoadWorker(
+            self.imap_inst, self.temp_list, self.inbox_page
+        )
+        self.inbox_mail.iemit_cell.connect(self.temp_crt.create_new_cell)
+        self.inbox_mail.istart.connect(self.started_thread)
+        self.inbox_mail.ifinish.connect(self.thread_completed)
+        self.inbox_mail.start()
 
     def prev_page(self, event):
         if (self.inbox_page > 0): 
-            if (self.ret_mail.isRunning()):
-                self.ret_mail.break_var = True
+            if (self.inbox_mail.isRunning()):
+                self.inbox_mail.break_var = True
 
-            self.ret_mail.wait()
-            self.ret_mail = None
+            self.inbox_mail.wait()
             self.inbox_page -= 1
-            self.status.setText((str((self.inbox_page*50)+1) + "-" + str((self.inbox_page+1)*50)))
-            self.ret_mail = MLoadWorker(self.imap_inst, self.inbox_page)
-            self.ret_mail.ierror.connect(self.return_error)
-            self.ret_mail.ifinish.connect(self.thread_completed)
-            self.ret_mail.istart.connect(self.started_thread)
-            self.ret_mail.iexport_email.connect(self.create_mail)
-            self.ret_mail.start()
+            self.status.setText(
+                str((self.inbox_page*50)+1)
+                + "-"
+                + str((self.inbox_page+1)*50)
+            )
+            self.temp_crt.clear_mail_list()
+            self.inbox_mail = MLoadWorker(
+                self.imap_inst, self.temp_list, self.inbox_page
+            )
+            self.inbox_mail.iemit_cell.connect(self.temp_crt.create_new_cell)
+            self.inbox_mail.istart.connect(self.started_thread)
+            self.inbox_mail.ifinish.connect(self.thread_completed)
+            self.inbox_mail.start()
 
     def started_thread(self):
         self.showing.setText("Loading... ")
@@ -212,122 +240,29 @@ class Inbox(QMainWindow):
     def thread_completed(self):
         self.showing.setText("Showing ")
 
-    def mail_editor(self, event):
-        self.temp_crt = MCreateTab()
-        self.tab_layout.addTab(self.temp_crt, "New Mail")
-        self.tab_layout.setCurrentIndex(self.tab_layout.count()-1)
+#    def mail_editor(self, event):
+#        self.temp_crt = MCreateTab()
+#        self.tab_layout.addTab(self.temp_crt, "New Mail")
+#        self.tab_layout.setCurrentIndex(self.tab_layout.count()-1)
 
     def close_curr_tab(self, x):
         if (x != 0):
             """
-            has memory management issues, closing tab dosent free 
+            has memory management issues, closing tab dosen't free 
             the memory it was holding (will improve later)
             """
             self.tab_layout.removeTab(x)
 
-    def mail_ret_thread(self):
-        self.ret_mail = MLoadWorker(self.imap_inst, self.inbox_page)
-        self.ret_mail.ierror.connect(self.return_error)
-        self.ret_mail.iexport_email.connect(self.create_mail)
-        self.ret_mail.ifinish.connect(self.thread_completed)
-        self.ret_mail.istart.connect(self.started_thread)
-        self.ret_mail.start()
-
-    def return_error(self):
-        print("INBOX::error while retrieving", len(self.mail_array))
-
-    def create_mail(self, subject, body, sender, val):
-        if self.mail_array[val] != val:
-            self.layout.removeWidget(self.mail_array[val])
-            self.mail_array[val].deleteLater()
-            self.mail_array[val] = None
-
-        self.mail_array[val] = MListCell(subject, body, sender, val, self.tab_layout)
-        self.mail_array[val].setFixedHeight(60)
-        self.mail_array[val].setStyleSheet("*{padding: 10px 10px 10px 10px;} *:hover {background: yellow;}")
-        self.layout.addWidget(self.mail_array[val])
-
-class WebviewTab(QWidget):
-    def __init__(self, subject, body) -> None:
-        super().__init__()
-        self.subject = subject
-        self.body = body
-
-        self.layout = QVBoxLayout()
-        self.top_bar = QHBoxLayout()
-        
-        self.title_label = QLabel(subject)
-        self.title_label.setFont(QFont("arial", 14))
-        self.top_bar.addWidget(self.title_label)
-
-        self.layout.addLayout(self.top_bar)
-
-        self.view = QWebEngineView()
-        self.view.setHtml(self.body)
-        self.layout.addWidget(self.view, 1)
-
-        self.setLayout(self.layout)
-        #self.setAttribute(Qt.WA_DeleteOnClose)
-    def del_func(self):
-        del self.layout
-
-class MCreateTab(QWidget):
-    def __init__(self) -> None:
-        super().__init__()
-        self.title = "Create New Mail"
-
-        self.layout = QVBoxLayout()
-        self.top_bar = QVBoxLayout()
-        self.bottom_bar = QHBoxLayout()
-        
-        self.title_label = QLabel(self.title)
-        self.title_label.setFont(QFont("arial", 14))
-        self.top_bar.addWidget(self.title_label)
-
-        self.input_field = QPlainTextEdit()
-
-        self.send_button = QPushButton("SEND MAIL")
-        self.bottom_bar.addWidget(self.send_button)
-
-        self.layout.addLayout(self.top_bar)
-        self.layout.addWidget(self.input_field)
-        self.layout.addLayout(self.bottom_bar)
-        self.setLayout(self.layout)
-
-
-class MListCell(QWidget):
-
-    def __init__(
-            self, m_subject, m_body, m_sender,  
-            m_page_number, tab_layout
-        ) -> None:
-        super().__init__()
-
-        self.subject = m_subject
-        self.body = m_body
-        self.sender = m_sender
-        self.page_number = m_page_number
-        self.tab_layout = tab_layout
-        if len(self.subject) < 30:
-            self.subject_cropped = self.subject
-        else:
-            self.subject_cropped = self.subject[0:30]
-
-        self.list_item_label = QLabel(self.subject)
-        self.list_item_label.setFont(QFont("arial", 14))
-
-        self.list_item_layout = QHBoxLayout()
-        self.list_item_layout.addWidget(self.list_item_label)
-
-        self.list_item = QVBoxLayout()
-        self.list_item.addLayout(self.list_item_layout)
-        self.setLayout(self.list_item)
-    
-    def mousePressEvent(self, event):
-
-        """ Creates a new tab for reading the mail and sets current
-            tab to the new one.
-        """
-        temp_tab = WebviewTab(self.subject, self.body)
-        self.tab_layout.addTab(temp_tab, self.subject_cropped)
-        self.tab_layout.setCurrentIndex(self.tab_layout.count()-1)
+#    def return_error(self):
+#        print("INBOX::error while retrieving", len(self.mail_array))
+#
+#    def create_mail(self, subject, body, sender, val):
+#        if self.mail_array[val] != val:
+#            self.layout.removeWidget(self.mail_array[val])
+#            self.mail_array[val].deleteLater()
+#            self.mail_array[val] = None
+#
+#        self.mail_array[val] = MListCell(subject, body, sender, val, self.tab_layout)
+#        self.mail_array[val].setFixedHeight(60)
+#        self.mail_array[val].setStyleSheet("*{padding: 10px 10px 10px 10px;} *:hover {background: #888888;}")
+#        self.layout.addWidget(self.mail_array[val])
