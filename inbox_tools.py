@@ -1,5 +1,5 @@
 from PySide6.QtWidgets import (
-    QHBoxLayout, QVBoxLayout, QPushButton,
+    QHBoxLayout, QVBoxLayout,
     QLabel, QWidget, QScrollArea
 )
 from PySide6.QtGui     import QFont
@@ -9,7 +9,6 @@ from PySide6.QtWebEngineWidgets import QWebEngineView
 from email.header      import decode_header, make_header 
 
 import email
-
 
 class MListCell(QWidget):
 
@@ -92,7 +91,6 @@ class MListTab(QWidget):
         self.mail_list[temp_num].list_item_label.setText(subject_str)
         self.mail_list[temp_num].cell_text = subject_str
         self.mail_list[temp_num].cell_mail_id = index
-        print(index, "LLLLL")
 
     def fill_mail_list(self):
         pass
@@ -104,7 +102,10 @@ class WebviewTab(QWidget):
         self.subject = subject
         self.imap_inst = imap_inst
         self.mail_id = mail_id
-        print(mail_id, "::")
+
+        self.subject = subject
+        self.imap_inst = imap_inst
+        self.mail_id = mail_id
 
         self.layout = QVBoxLayout()
         self.top_bar = QHBoxLayout()
@@ -118,35 +119,56 @@ class WebviewTab(QWidget):
         self.view = QWebEngineView()
         self.layout.addWidget(self.view, 1)
 
-        self.imap_inst.select("inbox")
-        print("COMID", self.mail_id)
-        _, idata = self.imap_inst.uid('fetch', self.mail_id, "(RFC822)")
-        _, b = idata[0] 
-        ac_email = email.message_from_bytes(b)
-        body = ""
-        if ac_email.is_multipart():
-            for part in ac_email.walk():
-                ctype = part.get_content_type()
-                cdispo = str(part.get('Content-Disposition'))
-
-                if ctype == 'text/plain' and 'attachment' not in cdispo:
-                    body = part.get_payload(decode=True)  # decode
-                if ctype == 'text/html':
-                    body = part.get_payload(decode=True)  # decode
-        else:
-            body =ac_email.get_payload(decode=True)
-
-        self.body_str = str(body)
-        self.body_str = str(make_header(decode_header(self.body_str)))
-        self.body_str = self.body_str.replace("\\n", "")
-        self.body_str = self.body_str.replace("\\r", "")
-
-        self.view.setHtml(self.body_str)
-
         self.setLayout(self.layout)
+
+        self.open_web = MLoadWebpage(
+            self.subject, self.imap_inst, 
+            self.mail_id
+        )
+        self.open_web.wemit_page.connect(self.set_webpage_content)
+        self.open_web.start()
+
+    def set_webpage_content(self, body_str):
+        self.view.setHtml(body_str)
 
     def del_func(self):
         del self.layout
+
+class MLoadWebpage(QThread):
+    wemit_page = Signal(str)
+
+    def __init__(self, subject, imap_inst, mail_id) -> None:
+        super().__init__()
+
+        self.subject = subject
+        self.imap_inst = imap_inst
+        self.mail_id = mail_id
+
+    def run(self):
+        try:
+            self.imap_inst.select("inbox")
+            _, idata = self.imap_inst.uid('fetch', self.mail_id, "(RFC822)")
+            _, b = idata[0] 
+            ac_email = email.message_from_bytes(b)
+            body = ""
+            if ac_email.is_multipart():
+                for part in ac_email.walk():
+                    ctype = part.get_content_type()
+                    cdispo = str(part.get('Content-Disposition'))
+
+                    if ctype == 'text/plain' and 'attachment' not in cdispo:
+                        temp_type = "text"
+                        body = part.get_payload(decode=True)  # decode
+                    if ctype == 'text/html':
+                        temp_type = "html"
+                        body = part.get_payload(decode=True)  # decode
+            else:
+                body =ac_email.get_payload(decode=True)
+
+            self.body_str = body.decode()
+            self.wemit_page.emit(self.body_str)
+        except Exception as e:
+            print("ERROR::", e)
 
 
 class MLoadWorker(QThread):
@@ -168,18 +190,16 @@ class MLoadWorker(QThread):
         try:
             temp_mail_list = self.mail_list[(self.page*50): ((self.page+1)*50)]
             my_string = ','.join(temp_mail_list)
-            print(my_string)
             _, idata = self.imap.uid('fetch', my_string, '(BODY.PEEK[HEADER.FIELDS (SUBJECT FROM)])')
             ldata = list(idata)
             ldata = [x for x in ldata if x != b')']
-            index = 0
+            index = 49
             for i in ldata:
                 ac_email = email.message_from_bytes(i[1])
                 subject_str = str(ac_email["subject"])
                 subject_str = str(make_header(decode_header(subject_str)))
                 self.iemit_cell.emit(subject_str, index, str(temp_mail_list[index]))
-                index += 1
-                print(index)
+                index -= 1
             self.ifinish.emit()
             self.exit(0)
 

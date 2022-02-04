@@ -21,7 +21,7 @@ One caveat though, you'll need this client to decrypt the mail and the associate
 
 [o] Tab Layout for multitasking
 
-[ ] Send Mail
+[o] Send Mail
   - [ ] With encryption
 
 [ ] Local mail storage (with encryption)

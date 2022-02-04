@@ -7,15 +7,18 @@ from PySide6.QtGui     import QFont
 from PySide6.QtCore    import Qt
 
 from inbox_tools    import MListTab, MLoadWorker
+from create         import MCreateTab
 
 import email
 import copy
 
 class Inbox(QMainWindow):
 
-    def __init__(self, imp):
+    def __init__(self, imp, usr, pss):
         super(Inbox, self).__init__()
-        self.imap_inst = imp
+        self.imap_inst = imp 
+        self.username = usr
+        self.password = pss
 
         self.setWindowTitle("NexMail")
 
@@ -115,7 +118,7 @@ class Inbox(QMainWindow):
         self.create = QLabel("New Mail")
         self.create.setFont(QFont(font, fontsize))
         menu_bar.addWidget(self.create)
-        #self.create.mousePressEvent = self.mail_editor
+        self.create.mousePressEvent = self.mail_editor
 
         self.inbox = QLabel("Inbox")
         self.inbox.setFont(QFont(font, fontsize))
@@ -242,10 +245,10 @@ class Inbox(QMainWindow):
     def thread_completed(self):
         self.showing.setText("Showing ")
 
-#    def mail_editor(self, event):
-#        self.temp_crt = MCreateTab()
-#        self.tab_layout.addTab(self.temp_crt, "New Mail")
-#        self.tab_layout.setCurrentIndex(self.tab_layout.count()-1)
+    def mail_editor(self, event):
+        self.temp_crt = MCreateTab(self.username, self.password)
+        self.tab_layout.addTab(self.temp_crt, "New Mail")
+        self.tab_layout.setCurrentIndex(self.tab_layout.count()-1)
 
     def close_curr_tab(self, x):
         if (x != 0):

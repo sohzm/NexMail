@@ -109,7 +109,7 @@ class Login(QDialog):
         self.thread.exit(0)
         print("AUTH:::", val)
         self.close()
-        self.inbox = Inbox(val)
+        self.inbox = Inbox(val, self.username, self.password)
         self.inbox.setFixedSize(1300, 900);
 
         self.inbox.show()

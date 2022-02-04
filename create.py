@@ -3,20 +3,29 @@ from PySide6.QtWidgets import (
     QPlainTextEdit, QPushButton, QLineEdit
 )
 from PySide6.QtGui     import QFont
+from PySide6.QtCore    import QThread, Signal
+
+import smtplib
 
 class MCreateTab(QWidget):
-    def __init__(self) -> None:
+    def __init__(self, usr, pss) -> None:
         super().__init__()
+
+        self.usr = usr
+        self.pss = pss
+
         self.title = "Create New Mail"
 
         self.layout = QVBoxLayout()
         self.top_bar = QVBoxLayout()
         self.bottom_bar = QHBoxLayout()
-        
-#        self.title_label = QLabel(self.title)
-#        self.title_label.setFont(QFont("arial", 12))
 
         ### TO
+        self.success_msg = QLabel("Mail Sent Successfully")
+        self.success_msg.setFont(QFont("arial", 14))
+        self.success_msg.hide()
+        self.top_bar.addWidget(self.success_msg)
+
         self.to_layout = QHBoxLayout()
         self.to_label = QLabel("To")
         self.to_layout.addWidget(self.to_label)
@@ -45,8 +54,57 @@ class MCreateTab(QWidget):
 
         self.send_button = QPushButton("SEND MAIL")
         self.bottom_bar.addWidget(self.send_button)
+        self.send_button.clicked.connect(self.send_mail)
 
         self.layout.addLayout(self.top_bar)
         self.layout.addWidget(self.input_field)
         self.layout.addLayout(self.bottom_bar)
         self.setLayout(self.layout)
+
+    def send_mail(self):
+        self.send_button.setEnabled(False)
+        self.to = self.to_edit.text()
+        self.sub = self.subject_edit.text()
+        self.body = self.input_field.toPlainText()
+        self.send_thread = MSendWorker(self.usr, self.pss, self.to, self.sub, self.body)
+        self.send_thread.mail_sent.connect(self.mail_sent_bro)
+        self.send_thread.start()
+
+    def mail_sent_bro(self):
+        self.success_msg.show()
+        print("Sent successfully")
+
+class MSendWorker(QThread):
+
+    mail_sent = Signal()
+
+    def __init__(self, usr, pss, to, sub, body) -> None:
+        super().__init__()
+        self.usr = usr
+        self.pss = pss
+        self.to = [to]
+        self.sub = sub
+        self.body = body
+
+    def run(self):
+        try:
+            server = smtplib.SMTP('smtp.gmail.com', 587)
+            server.starttls()
+            server.login(self.usr, self.pss)
+            message = """\
+From: %s
+To: %s
+Subject: %s
+
+
+%s
+            """ % (self.usr, ", ".join(self.to), self.sub, self.body)
+
+
+            server.sendmail(self.usr, self.to, message)
+            self.mail_sent.emit()
+            server.quit()
+            self.exit(0)
+        except Exception as e:
+            print("AUTH::ERROR", e)
+            self.exit(0)
