@@ -14,7 +14,8 @@ import email
 class MListCell(QWidget):
 
     def __init__(
-            self, cell_text, cell_number, cell_mail_id, imap_inst, tab_layout
+            self, cell_text, cell_number, 
+            cell_mail_id, imap_inst, tab_layout
         ) -> None:
         super().__init__()
 
@@ -26,7 +27,9 @@ class MListCell(QWidget):
 
         self.list_item_label = QLabel(self.cell_text)
         self.list_item_label.setFont(QFont("arial", 14))
-        self.list_item_label.setStyleSheet("*{padding: 10px 10px 10px 10px;} *:hover {background: #888888;}")
+        self.list_item_label.setStyleSheet(
+            "*{padding: 10px 10px 10px 10px;} *:hover {background: #888888;}"
+        )
 
         self.list_item_layout = QHBoxLayout()
         self.list_item_layout.addWidget(self.list_item_label)
@@ -43,7 +46,9 @@ class MListCell(QWidget):
             self.cropped = self.cell_text[0:30]
         else:
             self.cropped = self.cell_text
-        temp_tab = WebviewTab(self.cell_text, self.imap_inst, self.cell_mail_id) 
+        temp_tab = WebviewTab(
+            self.cell_text, self.imap_inst, self.cell_mail_id
+        )
         self.tab_layout.addTab(temp_tab, self.cropped)
         self.tab_layout.setCurrentIndex(self.tab_layout.count()-1)
 
@@ -72,7 +77,9 @@ class MListTab(QWidget):
         self.setLayout(self.layout1)
 
         for i in range(50):
-            self.mail_list.append(MListCell("", i, -1, self.imap_inst, self.tab_layout))
+            self.mail_list.append(
+                MListCell( "", i, -1, self.imap_inst, self.tab_layout)
+                )
             self.layout.addWidget(self.mail_list[i])
 
     def clear_mail_list(self):
@@ -97,6 +104,7 @@ class WebviewTab(QWidget):
         self.subject = subject
         self.imap_inst = imap_inst
         self.mail_id = mail_id
+        print(mail_id, "::")
 
         self.layout = QVBoxLayout()
         self.top_bar = QHBoxLayout()
@@ -112,7 +120,7 @@ class WebviewTab(QWidget):
 
         self.imap_inst.select("inbox")
         print("COMID", self.mail_id)
-        _, idata = self.imap_inst.fetch(str(self.mail_id), "(RFC822)")
+        _, idata = self.imap_inst.uid('fetch', self.mail_id, "(RFC822)")
         _, b = idata[0] 
         ac_email = email.message_from_bytes(b)
         body = ""
@@ -158,24 +166,20 @@ class MLoadWorker(QThread):
     def run(self):
         self.istart.emit()
         try:
-            temp_num = 0
-            print(self.mail_list)
-            for index in (
-                        self.mail_list[
-                            (self.page*50): ((self.page+1)*50)
-                        ]
-                    ):
-                if (self.break_var): 
-                    break
-                print(index)
-                _, idata = self.imap.fetch(str(index), "(RFC822)")
-                _, b = idata[0]
-                ac_email = email.message_from_bytes(b)
+            temp_mail_list = self.mail_list[(self.page*50): ((self.page+1)*50)]
+            my_string = ','.join(temp_mail_list)
+            print(my_string)
+            _, idata = self.imap.uid('fetch', my_string, '(BODY.PEEK[HEADER.FIELDS (SUBJECT FROM)])')
+            ldata = list(idata)
+            ldata = [x for x in ldata if x != b')']
+            index = 0
+            for i in ldata:
+                ac_email = email.message_from_bytes(i[1])
                 subject_str = str(ac_email["subject"])
                 subject_str = str(make_header(decode_header(subject_str)))
-                self.iemit_cell.emit(subject_str, temp_num, index)
-                print("COUT::", index)
-                temp_num += 1
+                self.iemit_cell.emit(subject_str, index, str(temp_mail_list[index]))
+                index += 1
+                print(index)
             self.ifinish.emit()
             self.exit(0)
 

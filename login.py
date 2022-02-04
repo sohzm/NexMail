@@ -49,9 +49,13 @@ class Login(QDialog):
         self.password_edit.setFont(QFont(font, fontsize))     
 
         self.username_edit.setPlaceholderText("Email")
-        self.username_edit.setStyleSheet("padding: 3px 3px 3px 10px solid black;")
+        self.username_edit.setStyleSheet(
+            "padding: 3px 3px 3px 10px solid black;"
+        )
         self.password_edit.setPlaceholderText("Password")
-        self.password_edit.setStyleSheet("padding: 3px 3px 3px 10px solid black;")
+        self.password_edit.setStyleSheet(
+            "padding: 3px 3px 3px 10px solid black;"
+        )
 
         self.username_edit.setText(os.environ["MailID"])
         self.password_edit.setText(os.environ["PassWD"])
@@ -83,7 +87,9 @@ class Login(QDialog):
 
         try:
             temp_regex = re.search("@.*$", self.username)
-            self.service = temp_regex.string[temp_regex.start()+1: temp_regex.end()]
+            self.service = temp_regex.string[
+                temp_regex.start()+1: temp_regex.end()
+            ]
             self.sr = imap_list[self.service][0]
             self.start_new_thread()
 

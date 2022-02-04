@@ -177,7 +177,9 @@ class Inbox(QMainWindow):
         self.tab_layout.setCurrentIndex(self.tab_layout.count()-1)
 
         self.imap_inst.select("inbox")
-        _, data = self.imap_inst.search(None, "ALL")
+        #_, data = self.imap_inst.search(None, "ALL")
+        _, data = self.imap_inst.uid("search", None, "ALL")
+        #print(data)
 
         temp_data = email.message_from_bytes(data[0])
 
