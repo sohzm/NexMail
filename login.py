@@ -57,8 +57,11 @@ class Login(QDialog):
             "padding: 3px 3px 3px 10px solid black;"
         )
 
-        self.username_edit.setText(os.environ["MailID"])
-        self.password_edit.setText(os.environ["PassWD"])
+        try:
+            self.username_edit.setText(os.environ["MailID"])
+            self.password_edit.setText(os.environ["PassWD"])
+        except:
+            pass
 
         #rt: add view/hide password option
         self.password_edit.setEchoMode(QLineEdit.Password)
@@ -120,7 +123,9 @@ class Login(QDialog):
         self.error_message.setText("Login Error, Try Again")
         self.password_edit.setText("")
 
-    #rt: add loading animation
+    """
+    Add loading animation
+    """
 
     def update_message(self):
         self.permission_to_run = True

@@ -44,7 +44,6 @@ class MCreateTab(QWidget):
         self.subject_layout.addWidget(self.subject_edit)
         self.subject_label.setFixedWidth(80)
 
-        #self.top_bar.addWidget(self.title_label)
         self.top_bar.addLayout(self.to_layout)
         self.top_bar.addLayout(self.subject_layout)
 
@@ -88,6 +87,9 @@ class MSendWorker(QThread):
 
     def run(self):
         try:
+            """
+            Add more smpt servers support
+            """
             server = smtplib.SMTP('smtp.gmail.com', 587)
             server.starttls()
             server.login(self.usr, self.pss)

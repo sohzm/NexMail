@@ -92,9 +92,6 @@ class MListTab(QWidget):
         self.mail_list[temp_num].cell_text = subject_str
         self.mail_list[temp_num].cell_mail_id = index
 
-    def fill_mail_list(self):
-        pass
-
 
 class WebviewTab(QWidget):
     def __init__(self, subject, imap_inst, mail_id) -> None:

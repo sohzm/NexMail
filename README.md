@@ -24,7 +24,8 @@ One caveat though, you'll need this client to decrypt the mail and the associate
 [o] Send Mail
   - [ ] With encryption
 
-[ ] Local mail storage (with encryption)
+[ ] Local mail storage
+  - [ ] Encrypted storage
 
 [ ] Mail search
 
@@ -43,3 +44,7 @@ o = in progress
 ```
 py main.py
 ```
+
+## Thanks
+
++ Icons taken from [Material Design Icons](https://materialdesignicons.com/)
