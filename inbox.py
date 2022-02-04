@@ -10,7 +10,6 @@ from inbox_tools    import MListTab, MLoadWorker
 from create         import MCreateTab
 
 import email
-import copy
 
 class Inbox(QMainWindow):
 
@@ -35,8 +34,6 @@ class Inbox(QMainWindow):
         area_box = QHBoxLayout()
         menu_bar = QVBoxLayout()
 
-        #mail_box = QWidget()
-        
         tool_bar.addLayout(user_bar)
         tool_bar.addLayout(mail_bar)
 
@@ -44,16 +41,17 @@ class Inbox(QMainWindow):
         main_bar.addLayout(tool_bar)
 
         area_box.addLayout(menu_bar)
-        #area_box.addLayout(mail_box)
 
         main_window.addLayout(main_bar)
         main_window.addLayout(area_box, 1)
+
 
         ### ICON BOX
 
         icon = QLabel("NexMail")
         icon.setFont(QFont("Iosevka", 32))
         icon_box.addWidget(icon)
+
 
         ### USER BAR 
 
@@ -141,12 +139,12 @@ class Inbox(QMainWindow):
         self.chats.setFont(QFont(font, fontsize))
         menu_bar.addWidget(self.chats)
 
+
         ### MAIL BOX
 
         self.tab_layout = QTabWidget()
         self.tab_layout.setTabsClosable(True)
         self.tab_layout.tabCloseRequested.connect(self.close_curr_tab)
-
 
         widget = QWidget()
         self.layout = QVBoxLayout(widget)
@@ -180,9 +178,7 @@ class Inbox(QMainWindow):
         self.tab_layout.setCurrentIndex(self.tab_layout.count()-1)
 
         self.imap_inst.select("inbox")
-        #_, data = self.imap_inst.search(None, "ALL")
         _, data = self.imap_inst.uid("search", None, "ALL")
-        #print(data)
 
         temp_data = email.message_from_bytes(data[0])
 
@@ -246,8 +242,8 @@ class Inbox(QMainWindow):
         self.showing.setText("Showing ")
 
     def mail_editor(self, event):
-        self.temp_crt = MCreateTab(self.username, self.password)
-        self.tab_layout.addTab(self.temp_crt, "New Mail")
+        self.mail_create = MCreateTab(self.username, self.password)
+        self.tab_layout.addTab(self.mail_create, "New Mail")
         self.tab_layout.setCurrentIndex(self.tab_layout.count()-1)
 
     def close_curr_tab(self, x):
