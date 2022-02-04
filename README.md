@@ -2,7 +2,7 @@
   <img src="https://github.com/sz47/NexMail/blob/main/images/screencap.jpg" align="center" alt="NexMail screencap"> 
 </p>
 
------
+# NexMail
 
 A QT based email client that encrypts the mail before sending. So even if mail providers like gmail or outlook wanted to read your mail, they can't :)
 
