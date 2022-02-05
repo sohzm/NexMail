@@ -1,9 +1,9 @@
 from PySide6.QtWidgets import (
-    QHBoxLayout, QVBoxLayout,
-    QLabel, QWidget, QScrollArea
+    QHBoxLayout, QVBoxLayout,  QScrollBar,
+    QLabel, QWidget, QScrollArea, QFrame
 )
 from PySide6.QtGui     import QFont
-from PySide6.QtCore    import Qt, QThread, Signal
+from PySide6.QtCore    import Qt, QThread, Signal, QRect
 from PySide6.QtWebEngineWidgets import QWebEngineView
 
 from email.header      import decode_header, make_header 
@@ -24,17 +24,38 @@ class MListCell(QWidget):
         self.imap_inst = imap_inst
         self.tab_layout = tab_layout
 
+        self.row = QHBoxLayout()
+
         self.list_item_label = QLabel(self.cell_text)
         self.list_item_label.setFont(QFont("arial", 14))
         self.list_item_label.setStyleSheet(
-            "*{padding: 10px 10px 10px 10px;} *:hover {background: #888888;}"
+            "*{padding: 10px 10px 10px 10px;} \
+            *:hover {background: #3377ff;}"
         )
 
         self.list_item_layout = QHBoxLayout()
-        self.list_item_layout.addWidget(self.list_item_label)
+        self.from_label = QLabel()
+        self.from_label.setFont(QFont("arial", 12))
+        self.from_label.setFixedWidth(250)
+        self.from_label.setStyleSheet(
+            "*{color: #999999;} \
+            *:hover {background: #3377ff;}"
+        )
 
+        self.row.addWidget(self.from_label)
+        self.row.addWidget(self.list_item_label)
+
+        self.list_item_layout.addLayout(self.row)
         self.list_item = QVBoxLayout()
-        self.setLayout(self.list_item_layout)
+        self.list_item.addLayout(self.list_item_layout)
+
+        self.line = QFrame()
+        self.line.setGeometry(QRect(1, 1, 1, 12))
+        self.line.setFrameShape(QFrame.HLine)
+        self.line.setFrameShadow(QFrame.Sunken)
+        
+        self.list_item.addWidget(self.line)
+        self.setLayout(self.list_item)
     
     def mousePressEvent(self, event):
 
@@ -68,8 +89,8 @@ class MListTab(QWidget):
 
         self.scroll = QScrollArea()
         self.scroll.setWidget(wid)
-
         self.scroll.setWidgetResizable(True)
+        self.scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
 
 
         self.layout1.addWidget(self.scroll)
@@ -87,8 +108,11 @@ class MListTab(QWidget):
             self.mail_list[i].cell_mail_id = -1
             self.mail_list[i].list_item_label.setText("")
             
-    def create_new_cell(self, subject_str, temp_num, index):
+    def create_new_cell(self, subject_str, from_str, temp_num, index):
+
+        from_list = from_str.split("<")
         self.mail_list[temp_num].list_item_label.setText(subject_str)
+        self.mail_list[temp_num].from_label.setText(from_list[0])
         self.mail_list[temp_num].cell_text = subject_str
         self.mail_list[temp_num].cell_mail_id = index
 
@@ -173,7 +197,7 @@ class MLoadWorker(QThread):
     ierror = Signal()
     istart = Signal()
     ifinish = Signal()
-    iemit_cell = Signal(str, int, str)
+    iemit_cell = Signal(str, str, int, str)
 
     def __init__(self, imap_inst, mail_list, page) -> None:
         super().__init__()
@@ -185,9 +209,14 @@ class MLoadWorker(QThread):
     def run(self):
         self.istart.emit()
         try:
-            temp_mail_list = self.mail_list[(self.page*50): ((self.page+1)*50)]
+            temp_mail_list = self.mail_list[
+                (self.page*50): ((self.page+1)*50)
+            ]
             my_string = ','.join(temp_mail_list)
-            _, idata = self.imap.uid('fetch', my_string, '(BODY.PEEK[HEADER.FIELDS (SUBJECT FROM)])')
+            _, idata = self.imap.uid(
+                'fetch', my_string, 
+                '(BODY.PEEK[HEADER.FIELDS (SUBJECT FROM)])'
+            )
             ldata = list(idata)
             ldata = [x for x in ldata if x != b')']
             index = 49
@@ -195,7 +224,12 @@ class MLoadWorker(QThread):
                 ac_email = email.message_from_bytes(i[1])
                 subject_str = str(ac_email["subject"])
                 subject_str = str(make_header(decode_header(subject_str)))
-                self.iemit_cell.emit(subject_str, index, str(temp_mail_list[index]))
+                from_str = str(ac_email["from"])
+                from_str = str(make_header(decode_header(from_str)))
+                self.iemit_cell.emit(
+                    subject_str, from_str, 
+                    index, str(temp_mail_list[index])
+                )
                 index -= 1
             self.ifinish.emit()
             self.exit(0)

@@ -69,7 +69,9 @@ class Inbox(QMainWindow):
         # search bar
         self.search = QLineEdit()
         self.search.setPlaceholderText("Search Mail")
-        self.search.setStyleSheet("padding: 3px 3px 3px 10px solid black;")
+        self.search.setStyleSheet(
+            "*{padding: 3px 3px 3px 10px solid black;}"
+        )
         self.search.setFont(QFont(font, fontsize))
         self.search.setFixedWidth(480)
         user_bar.addWidget(self.search)
@@ -135,11 +137,13 @@ class Inbox(QMainWindow):
         self.previous = QPushButton("Previous")
         mail_bar.addWidget(self.previous)
         self.previous.mousePressEvent = self.prev_page
+        self.previous.setStyleSheet( "padding: 5px 10px;")
 
         # next
         self.next = QPushButton("Next")
         mail_bar.addWidget(self.next)
         self.next.mousePressEvent = self.next_page
+        self.next.setStyleSheet( "padding: 5px 10px;")
 
 
         """
