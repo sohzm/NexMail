@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://github.com/sz47/NexMail/blob/main/images/screencap.jpg" align="center" alt="NexMail screencap"> 
+  <img src="https://github.com/sz47/NexMail/blob/main/images/screencap.png" align="center" alt="NexMail screencap"> 
 </p>
 
 # NexMail
