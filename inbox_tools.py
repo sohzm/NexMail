@@ -168,11 +168,19 @@ class MListTab(QWidget):
         self.layout1.addWidget(self.scroll)
         self.fin_wid = QWidget()
         self.fin_wid.setLayout(self.layout1)
-        self.fin_wid.setStyleSheet(
-            """
-            padding: 5px;
-            """
-        )
+        if theme == "icons/dark":
+            self.fin_wid.setStyleSheet(
+                """
+                padding: 5px;
+                background-color: #1b1a20;
+                """
+            )
+        else:
+            self.fin_wid.setStyleSheet(
+                """
+                padding: 5px;
+                """
+            )
         self.fin_lyt = QHBoxLayout()
         self.fin_lyt.addWidget(self.fin_wid)
         self.setLayout(self.fin_lyt)
@@ -214,9 +222,6 @@ class MListTab(QWidget):
 class WebviewTab(QWidget):
     def __init__(self, subject, imap_inst, mail_id) -> None:
         super().__init__()
-        self.subject = subject
-        self.imap_inst = imap_inst
-        self.mail_id = mail_id
 
         self.subject = subject
         self.imap_inst = imap_inst
@@ -224,6 +229,9 @@ class WebviewTab(QWidget):
 
         self.layout = QVBoxLayout()
         self.top_bar = QHBoxLayout()
+        self.layout.setContentsMargins(0,0,0,0)
+        self.top_bar.setContentsMargins(0,0,0,0)
+
         
         self.title_label = QLabel(self.subject)
         self.title_label.setFont(QFont("arial", 14))
@@ -233,9 +241,10 @@ class WebviewTab(QWidget):
         self.view = QWebEngineView()
         self.layout.addWidget(self.view, 1)
         self.setLayout(self.layout)
-        self.setStyleSheet(
+        self.title_label.setStyleSheet(
             """
-            margin: 0px;
+            padding: 10px;
+            background: #1b1a20;
             """
         )
         self.open_web = MLoadWebpage(

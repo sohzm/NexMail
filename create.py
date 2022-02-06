@@ -105,8 +105,6 @@ Subject: %s
 
 %s
             """ % (self.usr, ", ".join(self.to), self.sub, self.body)
-
-
             server.sendmail(self.usr, self.to, message)
             self.mail_sent.emit()
             server.quit()

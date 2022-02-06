@@ -69,11 +69,11 @@ class Inbox(QMainWindow):
         # search bar
         self.search = QLineEdit()
         self.search.setPlaceholderText("Search Mail")
-        self.search.setStyleSheet(
-            """ *{
-                padding: 3px 3px 3px 10px solid black;
-            } """
-        )
+#        self.search.setStyleSheet(
+#            """ *{
+#                padding: 3px 3px 3px 10px solid black;
+#            } """
+#        )
         self.search.setFont(QFont(font, fontsize))
         self.search.setFixedWidth(480)
         user_bar.addWidget(self.search)
@@ -240,14 +240,12 @@ class Inbox(QMainWindow):
         )
         self.tab_layout.setTabsClosable(True)
         self.tab_layout.tabCloseRequested.connect(self.close_curr_tab)
-
         widget = QWidget()
         self.layout = QVBoxLayout(widget)
         self.layout.setAlignment(Qt.AlignTop)
         layout1 = QVBoxLayout()
 
         scroll_area = QScrollArea()
-
         scroll_area.setWidget(widget)
         scroll_area.setWidgetResizable(True)
 

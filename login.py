@@ -50,13 +50,13 @@ class Login(QDialog):
         self.password_edit.setFont(QFont(font, fontsize))     
 
         self.username_edit.setPlaceholderText("Email")
-        self.username_edit.setStyleSheet(
-            "padding: 3px 3px 3px 10px solid black;"
-        )
+#        self.username_edit.setStyleSheet(
+#            "padding: 3px 3px 3px 10px solid black;"
+#        )
         self.password_edit.setPlaceholderText("Password")
-        self.password_edit.setStyleSheet(
-            "padding: 3px 3px 3px 10px solid black;"
-        )
+#        self.password_edit.setStyleSheet(
+#            "padding: 3px 3px 3px 10px solid black;"
+#        )
 
         try:
             self.username_edit.setText(os.environ["MailID"])
