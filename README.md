@@ -50,4 +50,3 @@ py main.py
 ## Thanks
 
 + Icons taken from [Material Design Icons](https://materialdesignicons.com/)
-+ QSS stylesheet source [GTRONICK/QSS](https://github.com/GTRONICK/QSS)

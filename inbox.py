@@ -13,7 +13,7 @@ import email
 
 class Inbox(QMainWindow):
 
-    def __init__(self, imp, usr, pss):
+    def __init__(self, imp, usr, pss, theme):
         super(Inbox, self).__init__()
         self.imap_inst = imp 
         self.username = usr
@@ -25,38 +25,34 @@ class Inbox(QMainWindow):
         LAYOUTS
         """
 
+        self.theme = "icons/"+theme
+
         main_window = QVBoxLayout()
 
         main_bar = QHBoxLayout()
-        icon_box = QHBoxLayout()
         tool_bar = QVBoxLayout()
         user_bar = QHBoxLayout()
-        mail_bar = QHBoxLayout()
 
         area_box = QHBoxLayout()
+        menu_bar_wid = QWidget()
         menu_bar = QVBoxLayout()
 
-        tool_bar.addLayout(user_bar)
-        tool_bar.addLayout(mail_bar)
+        main_window.setContentsMargins(0,0,0,0)
+        main_bar.setContentsMargins(0,0,0,0)
+        tool_bar.setContentsMargins(0,10,10,0)
+        user_bar.setContentsMargins(0,0,0,0)
+        area_box.setContentsMargins(0,0,0,0)
+        menu_bar.setContentsMargins(0,0,0,0)
 
-        main_bar.addLayout(icon_box)
+        tool_bar.addLayout(user_bar)
+
         main_bar.addLayout(tool_bar)
 
-        area_box.addLayout(menu_bar)
+        menu_bar_wid.setLayout(menu_bar)
+        area_box.addWidget(menu_bar_wid)
 
         main_window.addLayout(main_bar)
         main_window.addLayout(area_box, 1)
-
-
-        """
-        ICON BOX
-        """
-
-        icon = QLabel("NexMail")
-        icon.setFont(QFont("Iosevka", 22))
-        icon.setFixedWidth(170)
-        icon.setStyleSheet("padding: 18px solid black;")
-        icon_box.addWidget(icon)
 
 
         """
@@ -66,11 +62,17 @@ class Inbox(QMainWindow):
         fontsize = 12
         font = "arial"
 
+        spacep = QLabel("")
+        spacep.setFixedWidth(230)
+        user_bar.addWidget(spacep)
+
         # search bar
         self.search = QLineEdit()
         self.search.setPlaceholderText("Search Mail")
         self.search.setStyleSheet(
-            "*{padding: 3px 3px 3px 10px solid black;}"
+            """ *{
+                padding: 3px 3px 3px 10px solid black;
+            } """
         )
         self.search.setFont(QFont(font, fontsize))
         self.search.setFixedWidth(480)
@@ -84,67 +86,23 @@ class Inbox(QMainWindow):
         self.help = QLabel("Help")
         self.help.setFont(QFont(font, fontsize))
         user_bar.addWidget(self.help)
-        self.help.setPixmap(QPixmap('icons/help-circle.png'))
+        self.help.setPixmap(QPixmap(self.theme+'/help-circle.png'))
         self.help.setStyleSheet("padding: 5px 5px 5px 5px solid black;")
-
 
         # settings
         self.settings = QLabel("Settings")
         self.settings.setFont(QFont(font, fontsize))
         user_bar.addWidget(self.settings)
-        self.settings.setPixmap(QPixmap('icons/cog.png'))
+        self.settings.setPixmap(QPixmap(self.theme+'/cog.png'))
         self.settings.setStyleSheet("padding: 5px 5px 5px 5px solid black;")
 
         # account
         self.account = QLabel("Account")
         self.account.setFont(QFont(font, fontsize))
         user_bar.addWidget(self.account)
-        self.account.setPixmap(QPixmap('icons/account.png'))
+        self.account.setPixmap(QPixmap(self.theme+'/account.png'))
         self.account.setStyleSheet( "padding: 5px 5px 5px 5px solid black;")
         
-
-        """
-        MAIL BAR
-        """
-
-        # reload 
-        self.reload_layout = QHBoxLayout()
-
-        self.reload_icon = QLabel("Reload")
-        
-        self.reload_icon.setPixmap(QPixmap('icons/reload.png'))
-        #self.reload = QLabel("Reload")
-        #self.reload.setFont(QFont(font, fontsize))
-        self.reload_layout.addWidget(self.reload_icon)
-        #self.reload_layout.addWidget(self.reload)
-        mail_bar.addLayout(self.reload_layout)
-
-        # spacer
-        self.space2 = QLabel()
-        mail_bar.addWidget(self.space2, 1)
-
-        # showing
-        self.showing = QLabel("")
-        self.showing.setFont(QFont(font, fontsize))
-        mail_bar.addWidget(self.showing)
-
-        # status
-        self.status = QLabel("1 - 50")
-        self.status.setFont(QFont(font, fontsize))
-        mail_bar.addWidget(self.status)
-
-        # previous
-        self.previous = QPushButton("Previous")
-        mail_bar.addWidget(self.previous)
-        self.previous.mousePressEvent = self.prev_page
-        self.previous.setStyleSheet( "padding: 5px 10px;")
-
-        # next
-        self.next = QPushButton("Next")
-        mail_bar.addWidget(self.next)
-        self.next.mousePressEvent = self.next_page
-        self.next.setStyleSheet( "padding: 5px 10px;")
-
 
         """
         MENU BAR
@@ -155,27 +113,60 @@ class Inbox(QMainWindow):
 
 
         # create mail
+        self.create_wid = QWidget()
+        self.create_wid.setStyleSheet(
+            """ *{ 
+                border: 2px solid #3377ff;
+                border-radius: 20px;
+                margin: 20px 20px;
+                padding: 14px 28px;
+                font-size: 16px;
+            }
+            *:hover{ 
+                background-color: #3377ff;
+                color: #000000;
+            } """
+        )
         self.create = QLabel("New Mail")
         self.create.setFont(QFont(font, fontsize))
-        self.create.setFixedHeight(height)
         self.create.mousePressEvent = self.mail_editor
         self.create_lyt = QHBoxLayout()
+        self.create_lyt.setAlignment(Qt.AlignCenter)
         self.create_icon = QLabel("Reload")
-        self.create_icon.setStyleSheet( "padding: 10px 10px 10px 20px;")
-        self.create_icon.setPixmap(QPixmap('icons/pencil-plus.png'))
+        self.create.setStyleSheet(
+            """
+            padding: 0px 0px 0px 0px;
+            margin: 20px 0px;
+            border: none;
+            """
+        )
+        self.create_icon.setStyleSheet(
+            """ 
+            padding: 0px 0px 0px 0px; 
+            margin: 20px 0px;
+            border: none;
+            """
+        )
+
+        menu_bar_wid.setStyleSheet(
+            """
+            padding: 30px 30px 30px 50px;
+            """
+        )
+
+        self.create_icon.setPixmap(QPixmap(self.theme+'/pencil-plus-outline.png'))
         self.create_lyt.addWidget(self.create_icon)
         self.create_lyt.addWidget(self.create)
-        self.create_lyt.setAlignment(Qt.AlignLeft)
-        menu_bar.addLayout(self.create_lyt)
+        self.create_wid.setLayout(self.create_lyt)
+        menu_bar.addWidget(self.create_wid)
 
         # inbox
         self.inbox = QLabel("Inbox")
         self.inbox.setFont(QFont(font, fontsize))
-        self.inbox.setFixedHeight(height)
         self.inbox_lyt = QHBoxLayout()
         self.inbox_icon = QLabel("Reload")
-        self.inbox_icon.setStyleSheet( "padding: 10px 10px 10px 20px;")
-        self.inbox_icon.setPixmap(QPixmap('icons/inbox-outline.png'))
+        self.inbox.setStyleSheet(""" padding: 0px 0px 0px 0px; """)
+        self.inbox_icon.setPixmap(QPixmap(self.theme+'/inbox-outline.png'))
         self.inbox_lyt.addWidget(self.inbox_icon)
         self.inbox_lyt.addWidget(self.inbox)
         self.inbox_lyt.setAlignment(Qt.AlignLeft)
@@ -184,11 +175,10 @@ class Inbox(QMainWindow):
         # important mails
         self.important = QLabel("Important")
         self.important.setFont(QFont(font, fontsize))
-        self.important.setFixedHeight(height)
         self.important_lyt = QHBoxLayout()
         self.important_icon = QLabel("Reload")
-        self.important_icon.setStyleSheet( "padding: 10px 10px 10px 20px;")
-        self.important_icon.setPixmap(QPixmap('icons/star-outline.png'))
+        self.important.setStyleSheet(""" padding: 0px 0px 0px 0px; """)
+        self.important_icon.setPixmap(QPixmap(self.theme+'/star-outline.png'))
         self.important_lyt.addWidget(self.important_icon)
         self.important_lyt.addWidget(self.important)
         self.important_lyt.setAlignment(Qt.AlignLeft)
@@ -197,11 +187,10 @@ class Inbox(QMainWindow):
         # sent mails
         self.sent = QLabel("Sent")
         self.sent.setFont(QFont(font, fontsize))
-        self.sent.setFixedHeight(height)
         self.sent_lyt = QHBoxLayout()
         self.sent_icon = QLabel("Reload")
-        self.sent_icon.setStyleSheet( "padding: 10px 10px 10px 20px;")
-        self.sent_icon.setPixmap(QPixmap('icons/email-fast-outline.png'))
+        self.sent.setStyleSheet(""" padding: 0px 0px 0px 0px; """)
+        self.sent_icon.setPixmap(QPixmap(self.theme+'/email-fast-outline.png'))
         self.sent_lyt.addWidget(self.sent_icon)
         self.sent_lyt.addWidget(self.sent)
         self.sent_lyt.setAlignment(Qt.AlignLeft)
@@ -210,11 +199,10 @@ class Inbox(QMainWindow):
         # drafts
         self.draft = QLabel("Draft")
         self.draft.setFont(QFont(font, fontsize))
-        self.draft.setFixedHeight(height)
         self.draft_lyt = QHBoxLayout()
         self.draft_icon = QLabel("Reload")
-        self.draft_icon.setStyleSheet( "padding: 10px 10px 10px 20px;")
-        self.draft_icon.setPixmap(QPixmap('icons/book-edit-outline.png'))
+        self.draft.setStyleSheet(""" padding: 0px 0px 0px 0px; """)
+        self.draft_icon.setPixmap(QPixmap(self.theme+'/book-edit-outline.png'))
         self.draft_lyt.addWidget(self.draft_icon)
         self.draft_lyt.addWidget(self.draft)
         self.draft_lyt.setAlignment(Qt.AlignLeft)
@@ -223,19 +211,20 @@ class Inbox(QMainWindow):
         # chats
         self.chats = QLabel("Chats")
         self.chats.setFont(QFont(font, fontsize))
-        self.chats.setFixedHeight(height)
         self.chats_lyt = QHBoxLayout()
         self.chats_icon = QLabel("Reload")
-        self.chats_icon.setStyleSheet( "padding: 10px 10px 10px 20px;")
-        self.chats_icon.setPixmap(QPixmap('icons/message-outline.png'))
+        self.chats.setStyleSheet(""" padding: 0px 0px 0px 0px; """)
+        self.chats_icon.setPixmap(QPixmap(self.theme+'/message-outline.png'))
         self.chats_lyt.addWidget(self.chats_icon)
         self.chats_lyt.addWidget(self.chats)
         self.chats_lyt.setAlignment(Qt.AlignLeft)
         menu_bar.addLayout(self.chats_lyt)
 
         self.space3 = QLabel()
-        self.space3.setFixedWidth(170)
         menu_bar.addWidget(self.space3, 1)
+
+        menu_bar_wid.setFixedWidth(230)
+
 
         """
         MAIL BOX
@@ -243,6 +232,12 @@ class Inbox(QMainWindow):
 
         # tab layout
         self.tab_layout = QTabWidget()
+        self.tab_layout.setStyleSheet('')
+        self.tab_layout.setStyleSheet(
+            """ QTabBar {
+                font-size: 12pt; 
+            } """
+        )
         self.tab_layout.setTabsClosable(True)
         self.tab_layout.tabCloseRequested.connect(self.close_curr_tab)
 
@@ -273,15 +268,14 @@ class Inbox(QMainWindow):
             print("ERROR::", e)
 
     def on_inbox_clicked(self, event = 0):
-        self.temp_crt = MListTab(self.imap_inst, self.tab_layout)
+        self.temp_crt = MListTab(self.imap_inst, self.tab_layout, self.theme)
+        self.temp_crt.next_page_emit.connect(self.next_page)
+        self.temp_crt.prev_page_emit.connect(self.prev_page)
         self.tab_layout.addTab(self.temp_crt, "Inbox")
         self.tab_layout.setCurrentIndex(self.tab_layout.count()-1)
-
         self.imap_inst.select("inbox")
         _, data = self.imap_inst.uid("search", None, "ALL")
-
         temp_data = email.message_from_bytes(data[0])
-
         self.temp_list = str(temp_data).split()
         self.temp_list.reverse()
 
@@ -294,13 +288,13 @@ class Inbox(QMainWindow):
         self.inbox_mail.ifinish.connect(self.thread_completed)
         self.inbox_mail.start()
 
-    def next_page(self, event):
+    def next_page(self):
         if (self.inbox_mail.isRunning()):
             self.inbox_mail.break_var = True
             
         self.inbox_mail.wait()
         self.inbox_page += 1
-        self.status.setText(
+        self.temp_crt.status.setText(
             str((self.inbox_page*50)+1) 
             + "-" 
             + str((self.inbox_page+1)*50)
@@ -314,14 +308,14 @@ class Inbox(QMainWindow):
         self.inbox_mail.ifinish.connect(self.thread_completed)
         self.inbox_mail.start()
 
-    def prev_page(self, event):
+    def prev_page(self):
         if (self.inbox_page > 0): 
             if (self.inbox_mail.isRunning()):
                 self.inbox_mail.break_var = True
 
             self.inbox_mail.wait()
             self.inbox_page -= 1
-            self.status.setText(
+            self.temp_crt.status.setText(
                 str((self.inbox_page*50)+1)
                 + "-"
                 + str((self.inbox_page+1)*50)
@@ -336,10 +330,10 @@ class Inbox(QMainWindow):
             self.inbox_mail.start()
 
     def started_thread(self):
-        self.showing.setText("Loading... ")
+        self.temp_crt.showing.setText("Loading...")
 
     def thread_completed(self):
-        self.showing.setText("Showing ")
+        self.temp_crt.showing.setText("Showing")
 
     def mail_editor(self, event):
         self.mail_create = MCreateTab(self.username, self.password)

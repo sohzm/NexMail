@@ -1,8 +1,8 @@
 from PySide6.QtWidgets import (
     QHBoxLayout, QVBoxLayout,  QScrollBar,
-    QLabel, QWidget, QScrollArea, QFrame
+    QLabel, QWidget, QScrollArea, QFrame, QPushButton
 )
-from PySide6.QtGui     import QFont
+from PySide6.QtGui     import QFont, QPixmap
 from PySide6.QtCore    import Qt, QThread, Signal, QRect
 from PySide6.QtWebEngineWidgets import QWebEngineView
 
@@ -28,9 +28,15 @@ class MListCell(QWidget):
 
         self.list_item_label = QLabel(self.cell_text)
         self.list_item_label.setFont(QFont("arial", 14))
+        self.list_item_label.setFixedWidth(1140)
         self.list_item_label.setStyleSheet(
-            "*{padding: 10px 10px 10px 10px;} \
-            *:hover {background: #3377ff;}"
+            """ *{
+                padding: 10px 10px 10px 10px;
+                margin: 0px;
+            }
+            *:hover {
+                background: #3377ff;
+            } """
         )
 
         self.list_item_layout = QHBoxLayout()
@@ -38,8 +44,13 @@ class MListCell(QWidget):
         self.from_label.setFont(QFont("arial", 12))
         self.from_label.setFixedWidth(250)
         self.from_label.setStyleSheet(
-            "*{color: #999999;} \
-            *:hover {background: #3377ff;}"
+            """ *{
+                color: #999999;
+                padding: 10px 10px 10px 10px;
+                margin: 0px;
+            } *:hover {
+                background: #3377ff;
+            } """
         )
 
         self.row.addWidget(self.from_label)
@@ -50,7 +61,7 @@ class MListCell(QWidget):
         self.list_item.addLayout(self.list_item_layout)
 
         self.line = QFrame()
-        self.line.setGeometry(QRect(1, 1, 1, 12))
+        self.line.setGeometry(QRect(1, 1, 1, 1))
         self.line.setFrameShape(QFrame.HLine)
         self.line.setFrameShadow(QFrame.Sunken)
         
@@ -75,32 +86,115 @@ class MListCell(QWidget):
 
 class MListTab(QWidget):
 
-    def __init__(self, imap_inst, tab_layout) -> None:
+    next_page_emit = Signal()
+    prev_page_emit = Signal()
+
+    def __init__(self, imap_inst, tab_layout, theme) -> None:
         super().__init__()
         self.mail_list = []
         self.imap_inst = imap_inst
         self.tab_layout = tab_layout
+        self.theme = theme
+
+        int_mail_bar = QHBoxLayout()
+        int_mail_wid = QWidget()
+        fontsize = 12
+        font = "arial"
+
+        # reload 
+        self.reload_layout = QHBoxLayout()
+        self.reload_icon = QLabel("Reload")
+        self.reload_icon.setPixmap(QPixmap(self.theme+'/reload.png'))
+        self.reload_layout.addWidget(self.reload_icon)
+        int_mail_bar.addLayout(self.reload_layout)
+
+
+        # spacer
+        self.space2 = QLabel()
+        int_mail_bar.addWidget(self.space2, 1)
+
+        # showing
+        self.showing = QLabel("")
+        self.showing.setFont(QFont(font, fontsize))
+        int_mail_bar.addWidget(self.showing)
+
+        # status
+        self.status = QLabel("1 - 50")
+        self.status.setFont(QFont(font, fontsize))
+        int_mail_bar.addWidget(self.status)
+
+        # previous
+        self.previous = QPushButton("Previous")
+        self.previous.mousePressEvent = self.prev_page
+        self.previous.setStyleSheet(
+            """ *{
+                padding: 8px;
+            }
+            *:hover {
+                background-color: #4477ff;
+            } """
+        )
+        int_mail_bar.addWidget(self.previous)
+
+        # next
+        self.next = QPushButton("Next")
+        self.next.mousePressEvent = self.next_page
+        self.next.setStyleSheet(
+            """ *{  
+                padding: 8px;
+                margin: 0px 20px 0px 0px;
+            }
+            *:hover {
+                background-color: #4477ff;
+            } """
+        )
+        int_mail_bar.addWidget(self.next)
 
         wid = QWidget()
         self.layout = QVBoxLayout(wid)
         self.layout.setAlignment(Qt.AlignTop)
-
         self.layout1 = QVBoxLayout()
-
         self.scroll = QScrollArea()
         self.scroll.setWidget(wid)
         self.scroll.setWidgetResizable(True)
         self.scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-
-
+        int_mail_wid.setLayout(int_mail_bar)
+        int_mail_wid.setStyleSheet(
+            """
+            padding: 0px 0px 0px 20px;
+            """
+        )
+        self.layout1.addWidget(int_mail_wid)
         self.layout1.addWidget(self.scroll)
-        self.setLayout(self.layout1)
+        self.fin_wid = QWidget()
+        self.fin_wid.setLayout(self.layout1)
+        self.fin_wid.setStyleSheet(
+            """
+            padding: 5px;
+            """
+        )
+        self.fin_lyt = QHBoxLayout()
+        self.fin_lyt.addWidget(self.fin_wid)
+        self.setLayout(self.fin_lyt)
+        self.fin_lyt.setContentsMargins(0,0,0,0)
+        self.layout1.setContentsMargins(0,0,0,0)
+        self.showing.setStyleSheet(
+            """
+            padding: 0px;
+            """
+        )
 
         for i in range(50):
             self.mail_list.append(
                 MListCell( "", i, -1, self.imap_inst, self.tab_layout)
                 )
             self.layout.addWidget(self.mail_list[i])
+
+    def prev_page(self, event):
+        self.prev_page_emit.emit()
+
+    def next_page(self, event):
+        self.next_page_emit.emit()
 
     def clear_mail_list(self):
         for i in range(50):
@@ -136,12 +230,14 @@ class WebviewTab(QWidget):
         self.top_bar.addWidget(self.title_label)
 
         self.layout.addLayout(self.top_bar)
-
         self.view = QWebEngineView()
         self.layout.addWidget(self.view, 1)
-
         self.setLayout(self.layout)
-
+        self.setStyleSheet(
+            """
+            margin: 0px;
+            """
+        )
         self.open_web = MLoadWebpage(
             self.subject, self.imap_inst, 
             self.mail_id

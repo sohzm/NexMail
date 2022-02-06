@@ -6,11 +6,14 @@ from login import Login
 
 app = QApplication(sys.argv)
 
-with open('styles/material-dark.qss', 'r') as f:
-    style = f.read()
-    app.setStyleSheet(style)
+theme = "dark"
 
-window = Login()
+if theme == "dark":
+    with open('styles/material-dark.qss', 'r') as f:
+        style = f.read()
+        app.setStyleSheet(style)
+
+window = Login(theme)
 window.show()
 window.setFixedSize(window.size());
 

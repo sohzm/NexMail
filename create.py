@@ -59,6 +59,10 @@ class MCreateTab(QWidget):
         self.layout.addWidget(self.input_field)
         self.layout.addLayout(self.bottom_bar)
         self.setLayout(self.layout)
+        self.setStyleSheet(
+            """
+            """
+        )
 
     def send_mail(self):
         self.send_button.setEnabled(False)

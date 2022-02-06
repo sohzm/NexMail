@@ -22,8 +22,9 @@ imap_list = {
 
 class Login(QDialog):
     
-    def __init__(self):
+    def __init__(self, theme):
         super().__init__()
+        self.theme = theme
         self.load_layout()
 
     def load_layout(self):
@@ -112,8 +113,8 @@ class Login(QDialog):
         self.thread.exit(0)
         print("AUTH:::", val)
         self.close()
-        self.inbox = Inbox(val, self.username, self.password)
-        self.inbox.setFixedSize(1300, 900);
+        self.inbox = Inbox(val, self.username, self.password, self.theme)
+        self.inbox.setFixedSize(1700, 900);
 
         self.inbox.show()
 
