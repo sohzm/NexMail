@@ -31,12 +31,11 @@ class MListCell(QWidget):
         self.list_item_label.setFixedWidth(1140)
         self.list_item_label.setStyleSheet(
             """ *{
-                padding: 10px 10px 10px 10px;
-                margin: 0px;
+                background: transparent;
+                border: 0px;
+                color: #dddddd;
             }
-            *:hover {
-                background: #3377ff;
-            } """
+            """
         )
 
         self.list_item_layout = QHBoxLayout()
@@ -44,15 +43,12 @@ class MListCell(QWidget):
         self.from_label.setFont(QFont("arial", 12))
         self.from_label.setFixedWidth(250)
         self.from_label.setStyleSheet(
-            """ *{
-                color: #999999;
-                padding: 10px 10px 10px 10px;
-                margin: 0px;
-            } *:hover {
-                background: #3377ff;
-            } """
+        """ *{
+            background: transparent;
+            border: 0px;
+        }
+        """
         )
-
         self.row.addWidget(self.from_label)
         self.row.addWidget(self.list_item_label)
 
@@ -60,12 +56,26 @@ class MListCell(QWidget):
         self.list_item = QVBoxLayout()
         self.list_item.addLayout(self.list_item_layout)
 
-        self.line = QFrame()
-        self.line.setGeometry(QRect(1, 1, 1, 1))
-        self.line.setFrameShape(QFrame.HLine)
-        self.line.setFrameShadow(QFrame.Sunken)
-        
-        self.list_item.addWidget(self.line)
+#        self.line = QFrame()
+#        self.line.setGeometry(QRect(1, 1, 1, 1))
+#        self.line.setFrameShape(QFrame.HLine)
+#        self.line.setFrameShadow(QFrame.Sunken)
+#        self.list_item.addWidget(self.line)
+
+        self.setAttribute(Qt.WA_StyledBackground, True)
+        self.setStyleSheet(
+        """ *{
+                color: #999999;
+                padding: 10px 10px 10px 10px;
+                margin: 0px;
+            } *:hover {
+                background: #112244;
+                border: 2px solid black;
+                border-radius: 5px;
+                color: #ffffff;
+            } """
+
+        )
         self.setLayout(self.list_item)
     
     def mousePressEvent(self, event):

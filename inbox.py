@@ -148,11 +148,6 @@ class Inbox(QMainWindow):
             """
         )
 
-        menu_bar_wid.setStyleSheet(
-            """
-            padding: 30px 30px 30px 50px;
-            """
-        )
 
         self.create_icon.setPixmap(QPixmap(self.theme+'/pencil-plus-outline.png'))
         self.create_lyt.addWidget(self.create_icon)
@@ -223,6 +218,11 @@ class Inbox(QMainWindow):
         self.space3 = QLabel()
         menu_bar.addWidget(self.space3, 1)
 
+        menu_bar_wid.setStyleSheet(
+            """
+            padding: 12px 0px 12px 50px;
+            """
+        )
         menu_bar_wid.setFixedWidth(230)
 
 
