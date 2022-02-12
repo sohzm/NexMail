@@ -9,11 +9,15 @@ from PySide6.QtCore    import Qt
 from inbox_tools    import MListTab, MLoadWorker
 from create         import MCreateTab
 
+import imaplib
 import email
 
 class Inbox(QMainWindow):
 
-    def __init__(self, imp, usr, pss, theme):
+    def __init__(
+                self, imp: imaplib.IMAP4_SSL, 
+                usr: str, pss: str, theme: str
+            ):
         super(Inbox, self).__init__()
         self.imap_inst = imp 
         self.username = usr
@@ -160,7 +164,7 @@ class Inbox(QMainWindow):
         self.inbox.setFont(QFont(font, fontsize))
         self.inbox_lyt = QHBoxLayout()
         self.inbox_icon = QLabel("Reload")
-        self.inbox.setStyleSheet(""" padding: 0px 0px 0px 0px; """)
+        self.inbox.setStyleSheet(""" padding: 0px 0px 0px 5px; """)
         self.inbox_icon.setPixmap(QPixmap(self.theme+'/inbox-outline.png'))
         self.inbox_lyt.addWidget(self.inbox_icon)
         self.inbox_lyt.addWidget(self.inbox)
@@ -172,7 +176,7 @@ class Inbox(QMainWindow):
         self.important.setFont(QFont(font, fontsize))
         self.important_lyt = QHBoxLayout()
         self.important_icon = QLabel("Reload")
-        self.important.setStyleSheet(""" padding: 0px 0px 0px 0px; """)
+        self.important.setStyleSheet(""" padding: 0px 0px 0px 5px; """)
         self.important_icon.setPixmap(QPixmap(self.theme+'/star-outline.png'))
         self.important_lyt.addWidget(self.important_icon)
         self.important_lyt.addWidget(self.important)
@@ -184,7 +188,7 @@ class Inbox(QMainWindow):
         self.sent.setFont(QFont(font, fontsize))
         self.sent_lyt = QHBoxLayout()
         self.sent_icon = QLabel("Reload")
-        self.sent.setStyleSheet(""" padding: 0px 0px 0px 0px; """)
+        self.sent.setStyleSheet(""" padding: 0px 0px 0px 5px; """)
         self.sent_icon.setPixmap(QPixmap(self.theme+'/email-fast-outline.png'))
         self.sent_lyt.addWidget(self.sent_icon)
         self.sent_lyt.addWidget(self.sent)
@@ -196,7 +200,7 @@ class Inbox(QMainWindow):
         self.draft.setFont(QFont(font, fontsize))
         self.draft_lyt = QHBoxLayout()
         self.draft_icon = QLabel("Reload")
-        self.draft.setStyleSheet(""" padding: 0px 0px 0px 0px; """)
+        self.draft.setStyleSheet(""" padding: 0px 0px 0px 5px; """)
         self.draft_icon.setPixmap(QPixmap(self.theme+'/book-edit-outline.png'))
         self.draft_lyt.addWidget(self.draft_icon)
         self.draft_lyt.addWidget(self.draft)
@@ -208,7 +212,7 @@ class Inbox(QMainWindow):
         self.chats.setFont(QFont(font, fontsize))
         self.chats_lyt = QHBoxLayout()
         self.chats_icon = QLabel("Reload")
-        self.chats.setStyleSheet(""" padding: 0px 0px 0px 0px; """)
+        self.chats.setStyleSheet(""" padding: 0px 0px 0px 5px; """)
         self.chats_icon.setPixmap(QPixmap(self.theme+'/message-outline.png'))
         self.chats_lyt.addWidget(self.chats_icon)
         self.chats_lyt.addWidget(self.chats)
@@ -220,7 +224,7 @@ class Inbox(QMainWindow):
 
         menu_bar_wid.setStyleSheet(
             """
-            padding: 12px 0px 12px 50px;
+            padding: 12px 0px 12px 60px;
             """
         )
         menu_bar_wid.setFixedWidth(230)
@@ -297,7 +301,6 @@ class Inbox(QMainWindow):
             + "-" 
             + str((self.inbox_page+1)*50)
         )
-        self.temp_crt.clear_mail_list()
         self.inbox_mail = MLoadWorker(
             self.imap_inst, self.temp_list, self.inbox_page
         )
@@ -318,7 +321,6 @@ class Inbox(QMainWindow):
                 + "-"
                 + str((self.inbox_page+1)*50)
             )
-            self.temp_crt.clear_mail_list()
             self.inbox_mail = MLoadWorker(
                 self.imap_inst, self.temp_list, self.inbox_page
             )

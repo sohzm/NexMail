@@ -193,7 +193,7 @@ QTabWidget {
 	background-color:#1e1d23;
 }
 QTabWidget::pane {
-		border-color: rgb(69,69,69); /*nice*/
+		border-color: #101016;
 		background-color:#1e1d23;
 		border-style: solid;
 		border-top-width: 3px;

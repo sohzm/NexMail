@@ -3,12 +3,14 @@ from PySide6.QtWidgets import (
     QLabel, QWidget, QScrollArea, QFrame, QPushButton
 )
 from PySide6.QtGui     import QFont, QPixmap
-from PySide6.QtCore    import Qt, QThread, Signal, QRect
+from PySide6.QtCore    import Qt, QThread, Signal, QRect, QUrl, QFile
 from PySide6.QtWebEngineWidgets import QWebEngineView
+from PySide6.QtWebEngineCore import QWebEngineScript
 
 from email.header      import decode_header, make_header 
 
 import email
+import imaplib
 
 class MListCell(QWidget):
 
@@ -185,10 +187,19 @@ class MListTab(QWidget):
                 background-color: #1b1a20;
                 """
             )
+            int_mail_wid.setStyleSheet(
+                """
+                background-color: #101016;
+                """
+            )
         else:
             self.fin_wid.setStyleSheet(
                 """
                 padding: 5px;
+                """
+            )
+            int_mail_wid.setStyleSheet(
+                """
                 """
             )
         self.fin_lyt = QHBoxLayout()
@@ -264,11 +275,37 @@ class WebviewTab(QWidget):
         self.open_web.wemit_page.connect(self.set_webpage_content)
         self.open_web.start()
 
+    def load_CSS(self, view, path, name):
+        path = QFile(path)
+        if not path.open(QFile.ReadOnly | QFile.Text):
+            return
+        css = path.readAll().data().decode("utf-8")
+        SCRIPT = """
+        (function() {
+        css = document.createElement('style');
+        css.type = 'text/css';
+        css.id = "%s";
+        document.head.appendChild(css);
+        css.innerText = `%s`;
+        })()
+        """ % (name, css)
+    
+        script = QWebEngineScript()
+        view.page().runJavaScript(SCRIPT, QWebEngineScript.ApplicationWorld)
+        script.setName(name)
+        script.setSourceCode(SCRIPT)
+        script.setInjectionPoint(QWebEngineScript.DocumentReady)
+        script.setRunsOnSubFrames(True)
+        script.setWorldId(QWebEngineScript.ApplicationWorld)
+        view.page().scripts().insert(script)
+
     def set_webpage_content(self, body_str):
         self.view.setHtml(body_str)
+        self.load_CSS(self.view, "styles/web_dark_mode.css", "script1")
 
-    def del_func(self):
+    def __del__(self):
         del self.layout
+        self.view.deleteLater()
 
 class MLoadWebpage(QThread):
     wemit_page = Signal(str)
@@ -286,7 +323,7 @@ class MLoadWebpage(QThread):
             _, idata = self.imap_inst.uid('fetch', self.mail_id, "(RFC822)")
             _, b = idata[0] 
             ac_email = email.message_from_bytes(b)
-            body = ""
+            body = b""
             if ac_email.is_multipart():
                 for part in ac_email.walk():
                     ctype = part.get_content_type()
@@ -299,7 +336,7 @@ class MLoadWebpage(QThread):
                         temp_type = "html"
                         body = part.get_payload(decode=True)  # decode
             else:
-                body =ac_email.get_payload(decode=True)
+                body = ac_email.get_payload(decode=True)
 
             self.body_str = body.decode()
             self.wemit_page.emit(self.body_str)
@@ -314,7 +351,7 @@ class MLoadWorker(QThread):
     ifinish = Signal()
     iemit_cell = Signal(str, str, int, str)
 
-    def __init__(self, imap_inst, mail_list, page) -> None:
+    def __init__(self, imap_inst: imaplib.IMAP4_SSL, mail_list, page) -> None:
         super().__init__()
         self.imap = imap_inst
         self.page = page

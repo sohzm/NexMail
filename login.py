@@ -11,6 +11,7 @@ from PySide6.QtGui     import QPixmap, QImage, QFont
 from PySide6.QtCore    import QThread, Signal
 
 from inbox import Inbox
+from storage import CheckDirs
 
 imap_list = {
     "gmail.com":   ["imap.gmail.com",        993],
@@ -22,7 +23,7 @@ imap_list = {
 
 class Login(QDialog):
     
-    def __init__(self, theme):
+    def __init__(self, theme: str):
         super().__init__()
         self.theme = theme
         self.load_layout()
@@ -111,7 +112,6 @@ class Login(QDialog):
 
     def open_that_window(self, val):
         self.thread.exit(0)
-        print("AUTH:::", val)
         self.close()
         self.inbox = Inbox(val, self.username, self.password, self.theme)
         self.inbox.setFixedSize(1700, 900);
@@ -142,7 +142,7 @@ class LoginWorker(QThread):
     error = Signal(int)
     login_successful = Signal(imaplib.IMAP4_SSL)
 
-    def __init__(self, usr, pss, imp) -> None:
+    def __init__(self, usr: str, pss: str, imp: str) -> None:
         super().__init__()
         self.usr = usr
         self.pss = pss
@@ -152,8 +152,9 @@ class LoginWorker(QThread):
         try:
             imap = imaplib.IMAP4_SSL(self.imp)
             imap.login(self.usr, self.pss)
-            print("AUTH::SUCCESS:::", imap)
+            print("AUTH::SUCCESS", imap)
             self.login_successful.emit(imap)
+            CheckDirs(self.usr)
             self.exit(0)
         except Exception as e:
             print("AUTH::ERROR", e)

@@ -31,7 +31,7 @@ One caveat though, you'll need this client to decrypt the mail and the associate
 
 [ ] Vim keybindings (ofc)
 
-[ ] Dark Mode for reading mails
+[o] Dark Mode for reading mails
 
 x = done
 o = in progress
@@ -43,7 +43,7 @@ o = in progress
 
 ## Run
 
-```
+``` console
 py main.py
 ```
 
@@ -51,3 +51,4 @@ py main.py
 
 + Icons taken from [Material Design Icons](https://materialdesignicons.com/)
 + QSS stylesheet source [GTRONICK/QSS](https://github.com/GTRONICK/QSS)
++ Dark Theme for WebEngine Nikita Vasilyev
